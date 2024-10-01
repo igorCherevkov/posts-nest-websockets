@@ -4,7 +4,15 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 
-import { User, Post, Tag, PostTag } from '../db/models';
+import {
+  User,
+  Post,
+  Tag,
+  PostTag,
+  Chat,
+  UserChat,
+  ChatMessage,
+} from '../db/models';
 import { PostsModule } from './posts/posts.module';
 import { UsersModule } from './users/users.module';
 import { ChatsModule } from './chats/chats.module';
@@ -25,7 +33,7 @@ import { ChatsModule } from './chats/chats.module';
         host: configService.get('DB_HOST'),
         port: configService.get('DB_PORT'),
         dialect: configService.get('DB_DIALECT'),
-        models: [User, Post, Tag, PostTag],
+        models: [User, Post, Tag, PostTag, Chat, UserChat, ChatMessage],
       }),
     }),
     ServeStaticModule.forRoot({

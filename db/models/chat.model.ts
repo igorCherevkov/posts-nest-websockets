@@ -4,7 +4,7 @@ import { ChatMessage, UserChat } from './';
 
 @Table({ tableName: 'chats', timestamps: true, underscored: true })
 export default class Chat extends Model<Chat> {
-  @Column({ allowNull: false })
+  @Column
   isGroup: boolean;
 
   @HasMany(() => UserChat)
