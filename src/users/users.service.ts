@@ -13,12 +13,18 @@ export class UsersService {
     });
   }
 
+  async findAllUsers(): Promise<User[]> {
+    return await this.userModel.findAll({
+      attributes: { exclude: ['password', 'createdAt', 'updatedAt'] },
+    });
+  }
+
   async findUserById(id: number): Promise<User> {
     const user = await this.userModel.findOne({
       where: { id },
       order: [['posts', 'created_at', 'DESC']],
       attributes: {
-        exclude: ['password', 'created_at', 'updated_at'],
+        exclude: ['password', 'createdAt', 'updatedAt'],
       },
       include: [
         {

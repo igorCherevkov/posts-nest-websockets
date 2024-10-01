@@ -44,7 +44,7 @@ export class ChatsService {
       });
 
       if (existingChat) {
-        throw new Error('chat already exists');
+        return existingChat;
       }
     }
 
@@ -64,17 +64,20 @@ export class ChatsService {
   async saveMessage(messageDto: CreateMessageDto): Promise<ChatMessage> {
     const { chatId, userId, message } = messageDto;
 
+    // Найдем запись UserChat для проверки принадлежности пользователя к чату
     const chatUser = await this.userChatModel.findOne({
       where: { chatId, userId },
     });
 
+    // Проверим, существует ли chatUser
     if (!chatUser) {
       throw new Error('User is not part of this chat');
     }
 
+    // Создаем новое сообщение с правильным userId
     const newMessage = await this.chatMessageModel.create({
       chatId,
-      userId: chatUser.id,
+      userId: chatUser.userId, // Используем userId из chatUser
       message,
     });
 
