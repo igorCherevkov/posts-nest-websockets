@@ -26,7 +26,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     console.log(`Client disconnected: ${client.id}`);
   }
 
-  // Пользователь присоединяется к чату
   @SubscribeMessage('joinChat')
   handleJoinChat(
     @ConnectedSocket() client: Socket,
@@ -36,7 +35,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     console.log(`Client ${client.id} joined chat ${chatId}`);
   }
 
-  // Отправка сообщения в чат
   @SubscribeMessage('sendMessage')
   async handleMessage(
     @ConnectedSocket() client: Socket,
@@ -44,7 +42,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     const message = await this.chatsService.saveMessage(payload);
 
-    // Отправляем сообщение всем пользователям, подключенным к данному чату
     this.server.to(payload.chatId.toString()).emit('message', message);
   }
 }

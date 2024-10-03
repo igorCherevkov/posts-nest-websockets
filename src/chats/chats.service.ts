@@ -4,6 +4,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Chat, ChatMessage, UserChat } from '../../db/models';
 import { CreateChatDto } from './dto/createChat.dto';
 import { CreateMessageDto } from './dto/createMessage.dto';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class ChatsService {
@@ -26,6 +27,23 @@ export class ChatsService {
         },
       ],
     });
+  }
+
+  async getAllChats(userId: number) {
+    const chats = await this.chatModel.findAll({
+      attributes: { exclude: ['created_at', 'updated_at'] },
+      include: [
+        {
+          model: ChatMessage,
+          required: true,
+          limit: 1,
+          order: [['created_at', 'DESC']],
+          attributes: { exclude: ['chatId', 'userId', 'updated_at'] },
+        },
+      ],
+    });
+
+    return chats.filter((chat) => chat.messages.length > 0);
   }
 
   async createChat(chat: CreateChatDto): Promise<Chat> {
@@ -64,20 +82,17 @@ export class ChatsService {
   async saveMessage(messageDto: CreateMessageDto): Promise<ChatMessage> {
     const { chatId, userId, message } = messageDto;
 
-    // Найдем запись UserChat для проверки принадлежности пользователя к чату
     const chatUser = await this.userChatModel.findOne({
       where: { chatId, userId },
     });
 
-    // Проверим, существует ли chatUser
     if (!chatUser) {
       throw new Error('User is not part of this chat');
     }
 
-    // Создаем новое сообщение с правильным userId
     const newMessage = await this.chatMessageModel.create({
       chatId,
-      userId: chatUser.userId, // Используем userId из chatUser
+      userId: chatUser.userId,
       message,
     });
 
