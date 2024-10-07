@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
+import { Op } from 'sequelize';
 
 import { Post, Tag, User } from '../../db/models';
 
@@ -13,9 +14,10 @@ export class UsersService {
     });
   }
 
-  async findAllUsers(): Promise<User[]> {
+  async findAllUsers(id: number): Promise<User[]> {
     return await this.userModel.findAll({
       attributes: { exclude: ['password', 'createdAt', 'updatedAt'] },
+      where: { id: { [Op.ne]: id } },
     });
   }
 

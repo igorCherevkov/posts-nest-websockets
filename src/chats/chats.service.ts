@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 
-import { Chat, ChatMessage, UserChat } from '../../db/models';
+import { Chat, ChatMessage, User, UserChat } from '../../db/models';
 import { CreateChatDto } from './dto/createChat.dto';
 import { CreateMessageDto } from './dto/createMessage.dto';
 import { Op } from 'sequelize';
@@ -12,6 +12,7 @@ export class ChatsService {
     @InjectModel(Chat) private chatModel: typeof Chat,
     @InjectModel(UserChat) private userChatModel: typeof UserChat,
     @InjectModel(ChatMessage) private chatMessageModel: typeof ChatMessage,
+    @InjectModel(User) private userModel: typeof User,
   ) {}
 
   async getUsersChat(usersIds: number[]): Promise<Chat> {
@@ -31,14 +32,31 @@ export class ChatsService {
 
   async getAllChats(userId: number) {
     const chats = await this.chatModel.findAll({
-      attributes: { exclude: ['created_at', 'updated_at'] },
+      attributes: { exclude: ['createdAt', 'updatedAt'] },
       include: [
         {
+          model: UserChat,
+          where: { userId },
+        },
+        {
+          model: UserChat,
+          where: {
+            userId: { [Op.ne]: userId },
+          },
+          attributes: {
+            exclude: ['chatId', 'userId', 'createdAt', 'updatedAt'],
+          },
+          include: [
+            { model: User, attributes: ['id', 'login', 'email', 'userImg'] },
+          ],
+        },
+        {
           model: ChatMessage,
-          required: true,
+          attributes: ['message', 'createdAt'],
+          where: { message: { [Op.ne]: null } },
           limit: 1,
-          order: [['created_at', 'DESC']],
-          attributes: { exclude: ['chatId', 'userId', 'updated_at'] },
+          order: [['createdAt', 'DESC']],
+          required: true,
         },
       ],
     });
@@ -77,6 +95,10 @@ export class ChatsService {
     );
 
     return newChat;
+  }
+
+  async getChatMessages(chatId: number) {
+    return this.chatMessageModel.findAll({ where: { chatId } });
   }
 
   async saveMessage(messageDto: CreateMessageDto): Promise<ChatMessage> {

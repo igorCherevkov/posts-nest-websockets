@@ -25,6 +25,11 @@ export class ChatsController {
     return this.chatsService.getAllChats(id);
   }
 
+  @Get('messages/:chatId')
+  getChatMessages(@Param('chatId', ParseIntPipe) chatId: number) {
+    return this.chatsService.getChatMessages(chatId);
+  }
+
   @Post()
   createChat(@Body() chat: CreateChatDto): Promise<Chat> {
     return this.chatsService.createChat(chat);

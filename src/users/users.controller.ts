@@ -7,9 +7,9 @@ import { User } from '../../db/models';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Get()
-  findAllUsers(): Promise<User[]> {
-    return this.usersService.findAllUsers();
+  @Get('/chat/:id')
+  findAllUsers(@Param('id', ParseIntPipe) id: number): Promise<User[]> {
+    return this.usersService.findAllUsers(id);
   }
 
   @Get(':id')

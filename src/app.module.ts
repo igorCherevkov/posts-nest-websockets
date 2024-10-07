@@ -27,7 +27,7 @@ import { ChatsModule } from './chats/chats.module';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        username: configService.get('DB_USER'),
+        username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_NAME'),
         host: configService.get('DB_HOST'),
